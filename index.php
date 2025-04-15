@@ -16,13 +16,13 @@
     </div>
 </section>
 
-<section class="bg-indigo-50 px-4 py-10 ">
+<section class="px-6 py-10 ">
     <div class="container-xl lg:container m-auto">
         <h2 class="text-3xl font-bold text-indigo-500 mb-6 text-center">
             Latest Auctions
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white border border-gray-100 rounded shadow-md relative">
+            <div class="bg-white border border-gray-100 rounded shadow-lg ring-1 ring-gray-200 relative">
                 <div class="p-4">
                     <div class="mb-6">
                         <h3 class="text-xl font-bold">Used Car Auction</h3>
@@ -42,7 +42,7 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-100 rounded shadow-md relative">
+            <div class="bg-white border border-gray-100 rounded shadow-lg ring-1 ring-gray-200 relative">
                 <div class="p-4">
                     <div class="mb-6">
                         <h3 class="text-xl font-bold">Office Furniture Auction</h3>
@@ -62,7 +62,7 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-100 rounded shadow-md relative">
+            <div class="bg-white border border-gray-100 rounded shadow-lg ring-1 ring-gray-200 relative">
                 <div class="p-4">
                     <div class="mb-6">
                         <h3 class="text-xl font-bold">Computers and Electronics</h3>

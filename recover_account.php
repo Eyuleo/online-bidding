@@ -9,17 +9,18 @@ $recoveredEmail = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recoveryContact = trim($_POST['recovery_contact'] ?? '');
-    $recoveryType = trim($_POST['recovery_type'] ?? '');
 
     if (empty($recoveryContact)) {
-        $errors['contact'] = 'Please provide your recovery contact';
+        $errors['contact'] = 'Please provide your recovery email';
+    } elseif (!filter_var($recoveryContact, FILTER_VALIDATE_EMAIL)) {
+        $errors['contact'] = 'Please provide a valid email address';
     } else {
-        $account = $auth->findAccountByRecoveryContact($recoveryContact);
+        $account = $auth->findAccountByRecoveryEmail($recoveryContact);
         if ($account) {
             $recoveredEmail = $account['email'];
             $success = true;
         } else {
-            $errors['contact'] = 'No account found with this recovery contact';
+            $errors['contact'] = 'No account found with this recovery email';
         }
     }
 }
@@ -35,13 +36,13 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 
                     Recover Your Account
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
-                    Don't remember your email? We'll help you find it using your recovery contact.
+                    Don't remember your login email? We'll help you find it using your recovery email.
                 </p>
             </div>
 
             <?php if ($success && $recoveredEmail): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                <p>Your email address is: <strong><?= htmlspecialchars($recoveredEmail) ?></strong></p>
+                <p>Your login email address is: <strong><?= htmlspecialchars($recoveredEmail) ?></strong></p>
                 <p class="mt-2">You can now <a href="login.php" class="font-medium text-green-700 underline">log in</a>
                     with this email.</p>
             </div>
@@ -49,24 +50,12 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 
             <form class="mt-8 space-y-6" action="" method="POST">
                 <div class="space-y-4">
                     <div>
-                        <label for="recovery_type" class="block text-sm font-medium text-gray-700">Recovery Contact
-                            Type</label>
-                        <select name="recovery_type" id="recovery_type"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            <option value="email" <?= ($_POST['recovery_type'] ?? '') === 'email' ? 'selected' : '' ?>>
-                                Email</option>
-                            <option value="phone" <?= ($_POST['recovery_type'] ?? '') === 'phone' ? 'selected' : '' ?>>
-                                Phone Number</option>
-                        </select>
-                    </div>
-
-                    <div>
                         <label for="recovery_contact" class="block text-sm font-medium text-gray-700">Recovery
-                            Contact</label>
-                        <input type="text" id="recovery_contact" name="recovery_contact"
+                            Email</label>
+                        <input type="email" id="recovery_contact" name="recovery_contact"
                             value="<?= htmlspecialchars($_POST['recovery_contact'] ?? '') ?>"
                             class="relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
-                            placeholder="Enter your recovery email or phone number">
+                            placeholder="Enter your recovery email address">
                     </div>
 
                     <?php if (isset($errors['contact'])): ?>

@@ -35,13 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $user = $auth->getCurrentUser();
 $isAdmin = $auth->isAdmin();
 
-// Get auctions from database
-$auctions = $auctionController->getAuctions('active');
+// Get auctions from database based on filter
+$filter = $_GET['filter'] ?? 'open';
+$auctions = $auctionController->getAuctions($filter);
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 
-<section class="bg-blue-50 px-4 py-10">
+<section class="px-4 py-10">
     <div class="container-xl lg:container m-auto">
         <!-- Success/Error Messages -->
         <?php if (isset($_GET['message'])): ?>
@@ -57,7 +58,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <?php endif; ?>
 
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-3xl font-bold text-indigo-500">
+            <h2 class="text-2xl font-bold text-indigo-500">
                 Browse Auctions
             </h2>
             <?php if ($isAdmin): ?>
@@ -68,12 +69,60 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <?php endif; ?>
         </div>
 
+        <!-- Auction Status Tabs -->
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-8">
+                <a href="?filter=all"
+                    class="<?= $filter === 'all' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    All Auctions
+                </a>
+                <a href="?filter=open"
+                    class="<?= $filter === 'open' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    Open Auctions
+                </a>
+                <a href="?filter=upcoming"
+                    class="<?= $filter === 'upcoming' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    Upcoming Auctions
+                </a>
+                <a href="?filter=ended"
+                    class="<?= $filter === 'ended' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    Ended Auctions
+                </a>
+            </nav>
+        </div>
+
+        <?php if (empty($auctions)): ?>
+        <div class="text-center py-12">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No auctions found</h3>
+            <p class="text-gray-500">There are no <?= $filter ?> auctions at this time.</p>
+        </div>
+        <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <?php foreach ($auctions as $auction): ?>
-            <div class="bg-white rounded-xl shadow-md relative">
+            <div class="bg-white rounded-xl shadow-lg relative ring-1 ring-gray-300">
                 <div class="p-4">
                     <div class="mb-4">
-                        <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
+                            <?php
+                            $statusColor = '';
+                            switch ($auction['auction_status']) {
+                                case 'open':
+                                    $statusColor = 'green';
+                                    break;
+                                case 'upcoming':
+                                    $statusColor = 'yellow';
+                                    break;
+                                case 'ended':
+                                    $statusColor = 'gray';
+                                    break;
+                            }
+                            ?>
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<?= $statusColor ?>-100 text-<?= $statusColor ?>-800">
+                                <?= ucfirst($auction['auction_status']) ?>
+                            </span>
+                        </div>
                     </div>
 
                     <div class="mb-5 text-gray-600">
@@ -94,7 +143,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     <div class="flex items-center text-sm text-gray-600 mb-5">
                         <i class="fa-solid fa-box text-lg mr-2"></i>
                         <span><?= $auction['item_count'] ?> item(s)</span>
-                        <!-- <span>Starting from $<?= number_format($auction['min_price'], 2) ?></span> -->
                     </div>
 
                     <div class="border border-gray-100 mb-5"></div>
@@ -112,7 +160,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                 Edit
                             </a>
                             <button onclick="showDeleteModal(<?= $auction['id'] ?>)"
-                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
+                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm cursor-pointer">
                                 Delete
                             </button>
                         </div>
@@ -122,6 +170,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </div>
             <?php endforeach; ?>
         </div>
+        <?php endif; ?>
     </div>
 </section>
 

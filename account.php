@@ -244,7 +244,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 
 
             <!-- Recovery Contact Information -->
             <div class="bg-white shadow rounded-lg mb-6 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Recovery Contact Information</h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Recovery Email</h2>
                 <?php if (empty($user['recovery_contact'])): ?>
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                     <div class="flex">
@@ -258,7 +258,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 
                         </div>
                         <div class="ml-3">
                             <p class="text-sm text-yellow-700">
-                                No recovery contact set. We strongly recommend adding a recovery contact to help you
+                                No recovery email set. We strongly recommend adding a recovery email to help you
                                 regain access to your account if you forget your login email.
                             </p>
                         </div>
@@ -277,37 +277,25 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 
                 <?php endif; ?>
                 <form action="" method="POST">
                     <input type="hidden" name="form_type" value="recovery">
+                    <input type="hidden" name="recovery_type" value="email">
                     <div class="space-y-4">
                         <div>
-                            <label for="recovery_type" class="block text-sm font-medium text-gray-700">Recovery Contact
-                                Type</label>
-                            <select name="recovery_type" id="recovery_type"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                <option value="email"
-                                    <?= ($user['recovery_contact_type'] === 'email') ? 'selected' : '' ?>>Email</option>
-                                <option value="phone"
-                                    <?= ($user['recovery_contact_type'] === 'phone') ? 'selected' : '' ?>>Phone Number
-                                </option>
-                            </select>
-                        </div>
-                        <div>
                             <label for="recovery_contact" class="block text-sm font-medium text-gray-700">Recovery
-                                Contact</label>
-                            <input type="text" name="recovery_contact" id="recovery_contact"
+                                Email</label>
+                            <input type="email" name="recovery_contact" id="recovery_contact"
                                 value="<?= htmlspecialchars($user['recovery_contact'] ?? '') ?>"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Enter your recovery email or phone number">
+                                placeholder="Enter your recovery email">
                             <p class="mt-1 text-sm text-gray-500">This will be used to recover your account if you
                                 forget your login email.</p>
                             <?php if (!empty($user['recovery_contact'])): ?>
-                            <p class="mt-1 text-sm text-green-600">✓ Recovery contact is set
-                                (<?= htmlspecialchars($user['recovery_contact_type']) ?>)</p>
+                            <p class="mt-1 text-sm text-green-600">✓ Recovery email is set</p>
                             <?php endif; ?>
                         </div>
                         <div>
                             <button type="submit"
                                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                Update Recovery Contact
+                                Update Recovery Email
                             </button>
                         </div>
                     </div>

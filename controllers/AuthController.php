@@ -194,7 +194,7 @@ class AuthController {
 
     public function getCurrentUser() {
         if ($this->isLoggedIn()) {
-            $stmt = $this->pdo->prepare('SELECT id, name, email, role, is_active, account_restricted_until, recovery_contact, recovery_contact_type FROM users WHERE id = ?');
+            $stmt = $this->pdo->prepare('SELECT id, name, email, role, is_active, account_restricted_until, recovery_email FROM users WHERE id = ?');
             $stmt->execute([$_SESSION['user_id']]);
             $user = $stmt->fetch();
 
@@ -418,6 +418,21 @@ class AuthController {
     public function getUserById($userId) {
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateRecoveryEmail($userId, $recoveryEmail) {
+        if (!filter_var($recoveryEmail, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        $stmt = $this->pdo->prepare("UPDATE users SET recovery_email = ? WHERE id = ?");
+        return $stmt->execute([$recoveryEmail, $userId]);
+    }
+
+    public function findAccountByRecoveryEmail($recoveryEmail) {
+        $stmt = $this->pdo->prepare("SELECT id, email FROM users WHERE recovery_email = ?");
+        $stmt->execute([$recoveryEmail]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 } 

@@ -3,30 +3,22 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR . 'AuthController.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR . 'AuctionController.php';
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-error_log("Starting place-bid.php");
-error_log("POST data: " . print_r($_POST, true));
 
 $auth = new AuthController($pdo);
 $auctionController = new AuctionController($pdo);
 
 // Check if user is logged in and can place bids
 if (!$auth->isLoggedIn()) {
-    error_log("User not logged in");
     header('Location: auctions.php');
     exit();
 }
 
 if (!$auth->canPlaceBids()) {
-    error_log("User cannot place bids");
     header('Location: auctions.php');
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    error_log("Not a POST request");
     header('Location: auctions.php');
     exit();
 }
@@ -34,11 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $itemIds = $_POST['item_ids'] ?? [];
 $bidAmounts = $_POST['bid_amounts'] ?? [];
 
-error_log("Item IDs: " . print_r($itemIds, true));
-error_log("Bid amounts: " . print_r($bidAmounts, true));
 
 if (empty($itemIds) || empty($bidAmounts) || count($itemIds) !== count($bidAmounts)) {
-    error_log("Invalid bid data - itemIds or bidAmounts empty or mismatched");
     header('Location: auctions.php?error=' . urlencode('Invalid bid data'));
     exit();
 }
@@ -55,7 +44,7 @@ $stmt->execute([$itemIds[0]]);
 $auction = $stmt->fetch();
 
 if (!$auction) {
-    error_log("Auction not found for item ID: " . $itemIds[0]);
+
     header('Location: auctions.php?error=' . urlencode('Auction not found'));
     exit();
 }

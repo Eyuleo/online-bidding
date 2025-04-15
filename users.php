@@ -143,7 +143,7 @@ $users = $stmt->fetchAll();
                                         <input type="hidden" name="is_active"
                                             value="<?= $user['is_active'] ? '0' : '1' ?>">
                                         <button type="submit"
-                                            class="text-indigo-600 hover:text-indigo-900"><?= $user['is_active'] ? 'Deactivate' : 'Activate' ?></button>
+                                            class="text-indigo-600 hover:text-indigo-900 cursor-pointer"><?= $user['is_active'] ? 'Deactivate' : 'Activate' ?></button>
                                     </form>
                                     <span class="text-gray-300 mx-2">|</span>
                                     <?php if ($user['account_restricted_until'] && new DateTime($user['account_restricted_until']) > new DateTime()): ?>
@@ -151,7 +151,7 @@ $users = $stmt->fetchAll();
                                         <input type="hidden" name="action" value="unrestrict_user">
                                         <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                                         <button type="submit"
-                                            class="text-green-600 hover:text-green-900">Unrestrict</button>
+                                            class="text-green-600 hover:text-green-900 cursor-pointer">Unrestrict</button>
                                     </form>
                                     <?php else: ?>
                                     <form action="" method="POST" class="inline-block">
@@ -161,13 +161,13 @@ $users = $stmt->fetchAll();
                                             class="w-24 inline-block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             placeholder="Days">
                                         <button type="submit"
-                                            class="text-yellow-600 hover:text-yellow-900">Restrict</button>
+                                            class="text-yellow-600 hover:text-yellow-900 cursor-pointer">Restrict</button>
                                     </form>
                                     <?php endif; ?>
                                     <span class="text-gray-300 mx-2">|</span>
                                     <button
                                         onclick="showDeleteModal(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')"
-                                        class="text-red-600 hover:text-red-900">Delete</button>
+                                        class="text-red-600 hover:text-red-900 cursor-pointer">Delete</button>
                                     <?php endif; ?>
                                 </td>
                             </tr>
