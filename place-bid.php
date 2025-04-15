@@ -34,7 +34,7 @@ if (empty($itemIds) || empty($bidAmounts) || count($itemIds) !== count($bidAmoun
 
 // Get auction ID for redirect
 $stmt = $pdo->prepare('
-    SELECT a.id 
+    SELECT a.id, a.auction_type 
     FROM auctions a
     JOIN auction_items i ON a.id = i.auction_id
     WHERE i.id = ?
@@ -79,8 +79,8 @@ try {
         // Get item details to check current price
         try {
             $stmt = $pdo->prepare('
-                SELECT i.*, a.end_date, a.start_date,
-                       COALESCE(MAX(b.amount), i.starting_price) as highest_bid
+                SELECT i.*, a.end_date, a.start_date, a.auction_type,
+                       COALESCE(' . ($auction['auction_type'] === 'sell' ? 'MIN' : 'MAX') . '(b.amount), i.starting_price) as best_bid
                 FROM auction_items i
                 JOIN auctions a ON i.auction_id = a.id
                 LEFT JOIN bids b ON i.id = b.item_id
@@ -101,7 +101,7 @@ try {
             continue;
         }
 
-        error_log("Current highest bid for item $itemId: " . $item['highest_bid']);
+        error_log("Current best bid for item $itemId: " . $item['best_bid']);
         error_log("Start date for auction: " . $item['start_date']);
         error_log("End date for auction: " . $item['end_date']);
 
@@ -119,11 +119,21 @@ try {
             continue;
         }
 
-        // Check if bid amount is higher than current highest bid
-        if ($amount <= $item['highest_bid']) {
-            error_log("Bid amount ($amount) not higher than highest bid (" . $item['highest_bid'] . ") for item $itemId");
-            $errors[] = "Bid must be higher than current highest bid for " . $item['name'];
-            continue;
+        // Check if bid amount is valid based on auction type
+        if ($item['auction_type'] === 'buy') {
+            // For reverse auction (buy), bid must be lower than current lowest bid
+            if ($amount >= $item['best_bid']) {
+                error_log("Bid amount ($amount) not lower than lowest bid (" . $item['best_bid'] . ") for item $itemId");
+                $errors[] = "Bid must be lower than current lowest bid for " . $item['name'];
+                continue;
+            }
+        } else {
+            // For regular auction (sell), bid must be higher than current highest bid
+            if ($amount <= $item['best_bid']) {
+                error_log("Bid amount ($amount) not higher than highest bid (" . $item['best_bid'] . ") for item $itemId");
+                $errors[] = "Bid must be higher than current highest bid for " . $item['name'];
+                continue;
+            }
         }
 
         try {

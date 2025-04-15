@@ -41,6 +41,7 @@ try {
     $auctionData = [
         'auction_title' => trim($_POST['auction_title']),
         'auction_description' => trim($_POST['auction_description']),
+        'auction_type' => $_POST['auction_type'],
         'start_date' => $_POST['start_date'],
         'end_date' => $_POST['end_date'],
         'items' => []

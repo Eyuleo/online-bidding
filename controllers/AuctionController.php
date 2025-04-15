@@ -42,8 +42,8 @@ class AuctionController {
 
             // Insert auction
             $stmt = $this->pdo->prepare('
-                INSERT INTO auctions (title, description, created_by, status, start_date, end_date)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO auctions (title, description, created_by, status, start_date, end_date, auction_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ');
 
             if (!$stmt->execute([
@@ -52,7 +52,8 @@ class AuctionController {
                 $userId,
                 'active',
                 $data['start_date'],
-                $data['end_date']
+                $data['end_date'],
+                $data['auction_type'] ?? 'buy' // Default to 'buy' if not specified
             ])) {
                 throw new PDOException('Failed to create auction');
             }
@@ -276,7 +277,7 @@ class AuctionController {
             // Update auction
             $stmt = $this->pdo->prepare('
                 UPDATE auctions 
-                SET title = ?, description = ?, start_date = ?, end_date = ?
+                SET title = ?, description = ?, start_date = ?, end_date = ?, auction_type = ?
                 WHERE id = ?
             ');
 
@@ -285,6 +286,7 @@ class AuctionController {
                 $data['auction_description'],
                 $data['start_date'],
                 $data['end_date'],
+                $data['auction_type'] ?? 'buy', // Default to 'buy' if not specified
                 $auctionId
             ])) {
                 throw new PDOException('Failed to update auction');

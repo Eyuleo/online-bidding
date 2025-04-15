@@ -116,6 +116,10 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     <i class="fa-solid fa-box text-lg mr-2"></i>
                     <span><?= count($auction['items']) ?> item(s)</span>
                 </div>
+                <div class="flex items-center text-gray-600">
+                    <i class="fa-solid fa-gavel text-lg mr-2"></i>
+                    <span><?= $auction['auction_type'] === 'buy' ? 'Reverse Auction (Lowest Bid Wins)' : 'Regular Auction (Highest Bid Wins)' ?></span>
+                </div>
             </div>
 
             <?php 
@@ -218,97 +222,92 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 </div>
                 <?php endif; ?>
 
-                <form id="bidForm" action="place-bid.php" method="POST">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <input type="checkbox" id="selectAll"
-                                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Item
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Description
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Highest Bid
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Starting Price
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <?php foreach ($auction['items'] as $item): 
-                                    $itemImages = [];
-                                    $stmt = $pdo->prepare('SELECT image_path FROM item_images WHERE item_id = ?');
-                                    $stmt->execute([$item['id']]);
-                                    $images = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" id="selectAll"
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Item
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Description
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <?= $auction['auction_type'] === 'buy' ? 'Lowest Bid' : 'Highest Bid' ?>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Starting Price
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($auction['items'] as $item): 
+                                $itemImages = [];
+                                $stmt = $pdo->prepare('SELECT image_path FROM item_images WHERE item_id = ?');
+                                $stmt->execute([$item['id']]);
+                                $images = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-                                    // Get highest bid for this item
-                                    $stmt = $pdo->prepare('SELECT MAX(amount) as highest_bid FROM bids WHERE item_id = ?');
-                                    $stmt->execute([$item['id']]);
-                                    $highestBid = $stmt->fetch(PDO::FETCH_ASSOC)['highest_bid'] ?? $item['starting_price'];
-                                ?>
-                                <tr class="hover:bg-gray-50 cursor-pointer"
-                                    onclick="toggleItemSelection(<?= $item['id'] ?>)">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="checkbox" name="selected_items[]" value="<?= $item['id'] ?>"
-                                            class="item-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                            data-images='<?= htmlspecialchars(json_encode($images)) ?>'
-                                            onclick="event.stopPropagation()">
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            <?= htmlspecialchars($item['name']) ?></div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-500"><?= htmlspecialchars($item['description']) ?>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-semibold text-indigo-600">
-                                            $<?= number_format($highestBid, 2) ?>
-                                            <?php if ($highestBid > $item['starting_price']): ?>
-                                            <span class="text-xs text-green-600 ml-1">
-                                                <i class="fas fa-arrow-up"></i>
-                                                <?= number_format((($highestBid - $item['starting_price']) / $item['starting_price']) * 100, 1) ?>%
-                                            </span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-900">
-                                            $<?= number_format($item['starting_price'], 2) ?></div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                // Get best bid for this item
+                                $stmt = $pdo->prepare('SELECT ' . ($auction['auction_type'] === 'buy' ? 'MIN' : 'MAX') . '(amount) as best_bid FROM bids WHERE item_id = ?');
+                                $stmt->execute([$item['id']]);
+                                $bestBid = $stmt->fetch(PDO::FETCH_ASSOC)['best_bid'] ?? $item['starting_price'];
 
-                    <?php if ($auth->isLoggedIn() && !$isAdmin && $auth->canPlaceBids()): ?>
-                    <div class="mt-4 flex justify-between items-center">
-                        <p class="text-sm text-gray-600">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Select items to bid on multiple items at once
-                        </p>
-                        <!-- <button type="button" onclick="showBidModal()"
-                            class="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            <i class="fas fa-gavel mr-2"></i>
-                            Place Bid on Selected Items
-                        </button> -->
-                    </div>
-                    <?php endif; ?>
-                </form>
+                                // Calculate bid difference percentage
+                                $bidDiff = $bestBid - $item['starting_price'];
+                                $bidDiffPercent = ($bidDiff / $item['starting_price']) * 100;
+                                $isBetterBid = ($auction['auction_type'] === 'buy') ? ($bidDiff > 0) : ($bidDiff < 0);
+                            ?>
+                            <tr class="hover:bg-gray-50 cursor-pointer"
+                                onclick="toggleItemSelection(<?= $item['id'] ?>)">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" name="selected_items[]" value="<?= $item['id'] ?>"
+                                        class="item-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                        data-images='<?= htmlspecialchars(json_encode($images)) ?>'
+                                        onclick="event.stopPropagation()">
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        <?= htmlspecialchars($item['name']) ?></div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-500"><?= htmlspecialchars($item['description']) ?>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-semibold text-indigo-600">
+                                        $<?= number_format($bestBid, 2) ?>
+                                        <?php if ($bestBid != $item['starting_price']): ?>
+                                        <span
+                                            class="text-xs <?= $isBetterBid ? 'text-red-600' : 'text-green-600' ?> ml-1">
+                                            <i
+                                                class="fas fa-arrow-<?= $isBetterBid ? ($auction['auction_type'] === 'buy' ? 'down' : 'up') : ($auction['auction_type'] === 'sell' ? 'up' : 'down') ?>"></i>
+                                            <?= number_format(abs($bidDiffPercent), 1) ?>%
+                                        </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">
+                                        $<?= number_format($item['starting_price'], 2) ?></div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <p class="text-sm text-gray-600 mt-4">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Select items to bid on multiple items at once
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -594,12 +593,16 @@ function showBidModal() {
     const container = document.getElementById('bidItemsContainer');
     container.innerHTML = '';
 
+    const isReverseAuction = <?= json_encode($auction['auction_type'] === 'buy') ?>;
+
     selectedItems.forEach(checkbox => {
         const tr = checkbox.closest('tr');
         const itemName = tr.querySelector('td:nth-child(2)').textContent.trim();
         const currentBid = parseFloat(tr.querySelector('td:nth-child(4)').textContent.replace('$', '').replace(
             ',', ''));
-        const minBid = (currentBid + 0.01).toFixed(2); // Minimum bid is current highest bid + 0.01
+        const minBid = isReverseAuction ?
+            (currentBid - 0.01).toFixed(2) : // For reverse auction, bid must be lower
+            (currentBid + 0.01).toFixed(2); // For regular auction, bid must be higher
 
         const itemDiv = document.createElement('div');
         itemDiv.className = 'border-b border-gray-200 pb-4';
@@ -610,7 +613,7 @@ function showBidModal() {
                     ${itemName}
                 </label>
                 <span class="text-sm text-gray-500">
-                    Current Highest Bid: $${currentBid.toFixed(2)}
+                    Current ${isReverseAuction ? 'Lowest' : 'Highest'} Bid: $${currentBid.toFixed(2)}
                 </span>
             </div>
             <div class="mt-1 relative rounded-md shadow-sm">
@@ -621,15 +624,15 @@ function showBidModal() {
                        name="bid_amounts[]" 
                        required 
                        step="0.01"
-                       min="${minBid}"
+                       ${isReverseAuction ? 'max="' + minBid + '"' : 'min="' + minBid + '"'}
                        value="${minBid}"
                        class="pl-7 block w-full pr-12 sm:text-sm border-gray-300 rounded-md" 
                        placeholder="0.00">
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span class="text-xs text-gray-500">Min: $${minBid}</span>
+                    <span class="text-xs text-gray-500">${isReverseAuction ? 'Max' : 'Min'}: $${minBid}</span>
                 </div>
             </div>
-            <p class="mt-1 text-xs text-gray-500">Your bid must be at least $${minBid}</p>
+            <p class="mt-1 text-xs text-gray-500">Your bid must be ${isReverseAuction ? 'lower than' : 'at least'} $${minBid}</p>
         `;
         container.appendChild(itemDiv);
     });
@@ -647,34 +650,27 @@ document.getElementById('bidModalForm').addEventListener('submit', function(e) {
     const itemIds = Array.from(this.querySelectorAll('input[name="item_ids[]"]'));
     let hasError = false;
 
-    console.log('Submitting bid form');
-    console.log('Item IDs:', itemIds.map(input => input.value));
-    console.log('Bid amounts:', amounts.map(input => input.value));
+    const isReverseAuction = <?= json_encode($auction['auction_type'] === 'sell') ?>;
 
     amounts.forEach(input => {
         const amount = parseFloat(input.value);
-        const minBid = parseFloat(input.min);
+        const limit = parseFloat(isReverseAuction ? input.max : input.min);
 
-        console.log('Validating bid:', amount, 'min:', minBid);
-
-        if (isNaN(amount) || amount < minBid) {
+        if (isNaN(amount) || (isReverseAuction ? amount > limit : amount < limit)) {
             hasError = true;
             input.classList.add('border-red-500');
             input.closest('.relative').querySelector('.text-xs').classList.add('text-red-500');
-            console.log('Validation failed for amount:', amount);
         } else {
             input.classList.remove('border-red-500');
             input.closest('.relative').querySelector('.text-xs').classList.remove('text-red-500');
-            console.log('Validation passed for amount:', amount);
         }
     });
 
     if (hasError) {
         e.preventDefault();
-        alert('All bid amounts must be higher than their current highest bids');
-        console.log('Form submission prevented due to validation errors');
-    } else {
-        console.log('Form submission proceeding');
+        alert(
+            `All bid amounts must be ${isReverseAuction ? 'lower than their current lowest bids' : 'higher than their current highest bids'}`
+        );
     }
 });
 
