@@ -159,7 +159,6 @@ CREATE TABLE recovery_otps (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- First, add the new columns
 ALTER TABLE users
 ADD COLUMN recovery_contact VARCHAR(255),
 ADD COLUMN recovery_contact_type ENUM('email', 'phone');
@@ -178,5 +177,21 @@ WHERE recovery_phone IS NOT NULL AND recovery_email IS NULL;
 -- Drop the old columns
 ALTER TABLE users
 DROP COLUMN recovery_email,
-DROP COLUMN recovery_phone; 
+DROP COLUMN recovery_phone;
 
+
+-- Drop existing foreign key constraints
+ALTER TABLE bids
+DROP FOREIGN KEY bids_ibfk_1,
+DROP FOREIGN KEY bids_ibfk_2;
+
+ALTER TABLE bid_history
+DROP FOREIGN KEY bid_history_ibfk_2;
+
+-- Add new foreign key constraints with CASCADE and SET NULL
+ALTER TABLE bids
+ADD CONSTRAINT bids_ibfk_1 FOREIGN KEY (item_id) REFERENCES auction_items(id) ON DELETE CASCADE,
+ADD CONSTRAINT bids_ibfk_2 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE bid_history
+ADD CONSTRAINT bid_history_ibfk_2 FOREIGN KEY (action_by) REFERENCES users(id) ON DELETE SET NULL;
