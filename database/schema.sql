@@ -18,6 +18,7 @@ CREATE TABLE auctions (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     created_by INT NOT NULL,
+    auction_type ENUM('sell','buy') NOT NULL,
     status ENUM('draft', 'active', 'ended', 'cancelled') DEFAULT 'draft',
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
