@@ -1,7 +1,13 @@
 <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head.php';
- ?>
-<?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
- ?>
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR . 'AuctionController.php';
+
+$auctionController = new AuctionController($pdo);
+// Get latest active auctions
+$latestAuctions = $auctionController->getAuctions('open');
+$latestAuctions = array_slice($latestAuctions, 0, 3); // Only show top 3
+
+require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+?>
 
 <section class="bg-indigo-700 py-20 mb-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
@@ -16,73 +22,95 @@
     </div>
 </section>
 
-<section class="px-6 py-10 ">
+<section class="px-6 py-10">
     <div class="container-xl lg:container m-auto">
         <h2 class="text-3xl font-bold text-indigo-500 mb-6 text-center">
             Latest Auctions
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <?php if (empty($latestAuctions)): ?>
+            <div class="col-span-3 text-center py-12">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No active auctions</h3>
+                <p class="text-gray-500">Check back later for new auctions.</p>
+            </div>
+            <?php else: ?>
+            <?php foreach ($latestAuctions as $auction): ?>
             <div class="bg-white border border-gray-100 rounded shadow-lg ring-1 ring-gray-200 relative">
                 <div class="p-4">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold">Used Car Auction</h3>
+                        <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
+                        <?php if (strtotime($auction['updated_at']) > strtotime($auction['created_at'])): ?>
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-2">
+                            Recently Updated
+                        </span>
+                        <?php endif; ?>
+
+                        <?php
+                        // Determine auction status
+                        $now = time();
+                        $startDate = strtotime($auction['start_date']);
+                        $endDate = strtotime($auction['end_date']);
+                        $statusClass = '';
+                        $statusText = '';
+                        
+                        if ($now < $startDate) {
+                            $statusClass = 'bg-blue-100 text-blue-800';
+                            $statusText = 'Upcoming';
+                        } elseif ($now > $endDate) {
+                            $statusClass = 'bg-gray-100 text-gray-800';
+                            $statusText = 'Ended';
+                        } else {
+                            $statusClass = 'bg-green-100 text-green-800';
+                            $statusText = 'Active';
+                        }
+                        ?>
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusClass ?> mt-2 ml-2">
+                            <?= $statusText ?>
+                        </span>
                     </div>
 
                     <div class="mb-5">
-                        Bid on a used car in good condition starting at 20,000.
+                        <?= htmlspecialchars(substr($auction['description'], 0, 100)) ?>...
                     </div>
+
+                    <div class="mb-3">
+                        <div class="flex items-center text-gray-600 mb-2">
+                            <i class="fa-solid fa-calendar-days text-lg mr-2"></i>
+                            <span>Starts: <?= date('M d, Y', strtotime($auction['start_date'])) ?></span>
+                        </div>
+                        <div class="flex items-center text-orange-700">
+                            <i class="fa-solid fa-calendar-days text-lg mr-2"></i>
+                            <span>Ends: <?= date('M d, Y', strtotime($auction['end_date'])) ?></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center text-sm text-gray-600 mb-5">
+                        <i class="fa-solid fa-box text-lg mr-2"></i>
+                        <span><?= $auction['item_count'] ?> item(s)</span>
+                    </div>
+
                     <div class="border border-gray-100 mb-5"></div>
 
                     <div class="flex flex-col lg:flex-row justify-between mb-4">
-                        <a href="/auction?id=1"
+                        <a href="/auction.php?id=<?= $auction['id'] ?>"
                             class="h-[36px] bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-center text-sm">
-                            Read More
+                            View Details
                         </a>
                     </div>
                 </div>
             </div>
-
-            <div class="bg-white border border-gray-100 rounded shadow-lg ring-1 ring-gray-200 relative">
-                <div class="p-4">
-                    <div class="mb-6">
-                        <h3 class="text-xl font-bold">Office Furniture Auction</h3>
-                    </div>
-
-                    <div class="mb-5">
-                        We are looking to buy office furniture in bulk, starting at 500.
-                    </div>
-                    <div class="border border-gray-100 mb-5"></div>
-
-                    <div class="flex flex-col lg:flex-row justify-between mb-4">
-                        <a href="/auction?id=2"
-                            class="h-[36px] bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-center text-sm">
-                            Read More
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white border border-gray-100 rounded shadow-lg ring-1 ring-gray-200 relative">
-                <div class="p-4">
-                    <div class="mb-6">
-                        <h3 class="text-xl font-bold">Computers and Electronics</h3>
-                    </div>
-
-                    <div class="mb-5">
-                        Looking for computers and electronics in bulk, starting at 1,000.
-                    </div>
-                    <div class="border border-gray-100 mb-5"></div>
-
-                    <div class="flex flex-col lg:flex-row justify-between mb-4">
-                        <a href="/auction?id=3"
-                            class="h-[36px] bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-center text-sm">
-                            Read More
-                        </a>
-                    </div>
-                </div>
-
-            </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        <div class="text-center mt-8">
+            <a href="/auctions.php"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                View All Auctions
+            </a>
+        </div>
+    </div>
 </section>
 
-<?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
- ?>
+<?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php'; ?>

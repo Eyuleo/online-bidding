@@ -327,15 +327,15 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Amount
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Status
-                        </th>
+                        </th> -->
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Date
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
-                        </th>
+                        </th> -->
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -345,30 +345,30 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                             <?= htmlspecialchars($bid['item_name']) ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <?= htmlspecialchars($bid['bidder_name']) ?>
+                            <?= htmlspecialchars($bid['bidder_name']) ?> | <?= htmlspecialchars($bid['bidder_email']) ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             $<?= number_format($bid['amount'], 2) ?>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <!-- <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                 <?= $bid['status'] === 'accepted' ? 'bg-green-100 text-green-800' : 
                                     ($bid['status'] === 'rejected' ? 'bg-red-100 text-red-800' : 
                                     'bg-yellow-100 text-yellow-800') ?>">
                                 <?= ucfirst($bid['status']) ?>
                             </span>
-                        </td>
+                        </td> -->
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <?= date('M d, Y H:i', strtotime($bid['created_at'])) ?>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <?php if ($bid['status'] === 'pending'): ?>
                             <button onclick="handleBid(<?= $bid['id'] ?>, 'accept')"
                                 class="text-green-600 hover:text-green-900 mr-2">Accept</button>
                             <button onclick="handleBid(<?= $bid['id'] ?>, 'reject')"
                                 class="text-red-600 hover:text-red-900">Reject</button>
                             <?php endif; ?>
-                        </td>
+                        </td> -->
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

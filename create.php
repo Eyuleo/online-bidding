@@ -114,7 +114,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                         </label>
                                         <textarea name="items[0][description]" rows="2"
                                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                            placeholder="Describe the item" required></textarea>
+                                            placeholder="Describe the item"></textarea>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

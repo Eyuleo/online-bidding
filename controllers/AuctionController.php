@@ -277,7 +277,7 @@ class AuctionController {
             // Update auction
             $stmt = $this->pdo->prepare('
                 UPDATE auctions 
-                SET title = ?, description = ?, start_date = ?, end_date = ?, auction_type = ?
+                SET title = ?, description = ?, start_date = ?, end_date = ?, auction_type = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             ');
 
@@ -341,6 +341,12 @@ class AuctionController {
 
                     // Handle images if they exist
                     if (isset($item['images']) && !empty($item['images'])) {
+                        // First, get existing images for this item
+                        $stmt = $this->pdo->prepare('SELECT image_path FROM item_images WHERE item_id = ?');
+                        $stmt->execute([$item['id']]);
+                        $existingImages = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                        
+                        // Add new images
                         foreach ($item['images'] as $index => $image) {
                             $stmt = $this->pdo->prepare('
                                 INSERT INTO item_images (item_id, image_path, is_primary)
@@ -348,9 +354,9 @@ class AuctionController {
                             ');
 
                             if (!$stmt->execute([
-                                $itemId,
+                                $item['id'],
                                 $image,
-                                $index === 0 ? 1 : 0
+                                $index === 0 && empty($existingImages) ? 1 : 0
                             ])) {
                                 throw new PDOException('Failed to save item image');
                             }

@@ -147,9 +147,27 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             Images
                                         </label>
+                                        <div class="mb-2">
+                                            <div class="grid grid-cols-4 gap-2">
+                                                <?php
+                                                $stmt = $pdo->prepare('SELECT image_path FROM item_images WHERE item_id = ?');
+                                                $stmt->execute([$item['id']]);
+                                                $images = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                                                foreach ($images as $image): ?>
+                                                <div class="relative">
+                                                    <img src="<?= htmlspecialchars($image) ?>" alt="Item image"
+                                                        class="w-full h-24 object-cover rounded">
+                                                    <input type="hidden" name="items[<?= $index ?>][existing_images][]"
+                                                        value="<?= htmlspecialchars($image) ?>">
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
                                         <input type="file" name="items[<?= $index ?>][images][]" multiple
                                             accept="image/*"
                                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                                        <p class="mt-1 text-xs text-gray-500">Upload new images to add to existing ones.
+                                            Images are not removable for audit purposes.</p>
                                     </div>
                                 </div>
                             </div>
@@ -222,6 +240,7 @@ function addItem() {
                     </label>
                     <input type="file" name="items[${itemCount}][images][]" multiple accept="image/*"
                         class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                    <p class="mt-1 text-xs text-gray-500">Upload images for this item.</p>
                 </div>
             </div>
         </div>

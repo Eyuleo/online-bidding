@@ -66,6 +66,17 @@ try {
             'images' => []
         ];
 
+        // Preserve existing images if they were included in the form
+        if (isset($item['existing_images']) && is_array($item['existing_images'])) {
+            foreach ($item['existing_images'] as $existingImage) {
+                // Validate that the image path exists and is within the uploads directory
+                $imagePath = __DIR__ . DIRECTORY_SEPARATOR . $existingImage;
+                if (file_exists($imagePath) && strpos(realpath($imagePath), realpath($uploadDir)) === 0) {
+                    $itemData['images'][] = $existingImage;
+                }
+            }
+        }
+
         // Handle image uploads for this item
         if (isset($_FILES['items']['name'][$index]['images'])) {
             $files = $_FILES['items']['name'][$index]['images'];
@@ -99,6 +110,28 @@ try {
     }
 
     // Update the auction
+    $stmt = $pdo->prepare('
+        UPDATE auctions 
+        SET title = ?, 
+            description = ?, 
+            start_date = ?, 
+            end_date = ?, 
+            auction_type = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    ');
+
+    if (!$stmt->execute([
+        $auctionData['auction_title'],
+        $auctionData['auction_description'],
+        $auctionData['start_date'],
+        $auctionData['end_date'],
+        $auctionData['auction_type'] ?? 'buy',
+        $auctionId
+    ])) {
+        throw new PDOException('Failed to update auction');
+    }
+
     $result = $auctionController->updateAuction($auctionId, $auctionData, $auth->getCurrentUser()['id']);
 
     if ($result['success']) {
