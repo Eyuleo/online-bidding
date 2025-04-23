@@ -161,6 +161,7 @@ class AuctionController {
 
     public function deleteAuction($auctionId, $userId) {
         try {
+	    $this->deleteAuctionImages($auctionId);
             // Check if user is admin or auction creator
             $stmt = $this->pdo->prepare('
                 SELECT created_by FROM auctions WHERE id = ?
@@ -193,6 +194,25 @@ class AuctionController {
             ];
         }
     }
+
+private function deleteAuctionImages($auctionId)
+{
+    $stmt = $this->pdo->prepare('
+        SELECT ii.image_path
+        FROM item_images ii
+        JOIN auction_items ai ON ii.item_id = ai.id
+        WHERE ai.auction_id = ?
+    ');
+    $stmt->execute([$auctionId]);
+    $imagePaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    foreach ($imagePaths as $imagePath) {
+        $fullPath = __DIR__ . '/../' . $imagePath;
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+    }
+}
 
     public function getAuctionDetails($auctionId) {
         try {
