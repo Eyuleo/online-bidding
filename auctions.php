@@ -103,14 +103,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 class="bg-white rounded-xl shadow-lg relative ring-1 ring-gray-300 hover:ring-indigo-500 transition-all duration-300">
                 <div class="p-4">
                     <div class="mb-4">
-                        <div class="flex justify-between items-start">
+                        <div class="flex justify-between items-center">
                             <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
-                            <?php if (strtotime($auction['updated_at']) > strtotime($auction['created_at'])): ?>
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-2">
-                                Recently Updated
-                            </span>
-                            <?php endif; ?>
                             <?php
                             $statusColor = '';
                             switch ($auction['auction_status']) {
@@ -144,6 +138,13 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                         <div class="flex items-center text-orange-700">
                             <i class="fa-solid fa-calendar-days text-lg mr-2"></i>
                             <span>Ends: <?= date('M d, Y', strtotime($auction['end_date'])) ?></span>
+                        </div>
+                        <div class="mt-2">
+                            <?php if (strtotime($auction['updated_at']) > strtotime($auction['created_at'])): ?>
+                            <span class="py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Updated on <?= date('M d, Y', strtotime($auction['updated_at'])) ?>
+                            </span>
+                            <?php endif; ?>
                         </div>
                     </div>
 
