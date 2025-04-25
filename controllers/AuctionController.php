@@ -338,7 +338,30 @@ private function deleteAuctionImages($auctionId)
                         throw new PDOException('Failed to update auction item');
                     }
 
-                    $updatedItems[] = $item['id'];
+                    $itemId = $item['id'];
+                    $updatedItems[] = $itemId;
+
+                    // Delete existing images for this item
+                    $stmt = $this->pdo->prepare('DELETE FROM item_images WHERE item_id = ?');
+                    $stmt->execute([$itemId]);
+
+                    // Insert all images (both existing and new)
+                    if (isset($item['images']) && !empty($item['images'])) {
+                        foreach ($item['images'] as $index => $image) {
+                            $stmt = $this->pdo->prepare('
+                                INSERT INTO item_images (item_id, image_path, is_primary)
+                                VALUES (?, ?, ?)
+                            ');
+
+                            if (!$stmt->execute([
+                                $itemId,
+                                $image,
+                                $index === 0 ? 1 : 0
+                            ])) {
+                                throw new PDOException('Failed to save item image');
+                            }
+                        }
+                    }
                 } else {
                     // Insert new item
                     $stmt = $this->pdo->prepare('
@@ -361,12 +384,6 @@ private function deleteAuctionImages($auctionId)
 
                     // Handle images if they exist
                     if (isset($item['images']) && !empty($item['images'])) {
-                        // First, get existing images for this item
-                        $stmt = $this->pdo->prepare('SELECT image_path FROM item_images WHERE item_id = ?');
-                        $stmt->execute([$item['id']]);
-                        $existingImages = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                        
-                        // Add new images
                         foreach ($item['images'] as $index => $image) {
                             $stmt = $this->pdo->prepare('
                                 INSERT INTO item_images (item_id, image_path, is_primary)
@@ -374,9 +391,9 @@ private function deleteAuctionImages($auctionId)
                             ');
 
                             if (!$stmt->execute([
-                                $item['id'],
+                                $itemId,
                                 $image,
-                                $index === 0 && empty($existingImages) ? 1 : 0
+                                $index === 0 ? 1 : 0
                             ])) {
                                 throw new PDOException('Failed to save item image');
                             }

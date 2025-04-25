@@ -2,9 +2,26 @@
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR . 'AuctionController.php';
 
 $auctionController = new AuctionController($pdo);
-// Get latest active auctions
-$latestAuctions = $auctionController->getAuctions('open');
-$latestAuctions = array_slice($latestAuctions, 0, 3); // Only show top 3
+// Get latest auctions and limit to 3 first
+$auctions = $auctionController->getAuctions('');
+$auctions = array_slice($auctions, 0, 3);
+
+// Filter to only include open and upcoming auctions
+$latestAuctions = array_filter($auctions, function($auction) {
+    $now = time();
+    $startDate = strtotime($auction['start_date']);
+    $endDate = strtotime($auction['end_date']);
+    
+    // Only include auctions that are either open or upcoming
+    return ($now >= $startDate && $now <= $endDate) || // Open auctions
+           ($now < $startDate); // Upcoming auctions
+});
+
+// Sort by creation date and get top 6
+usort($latestAuctions, function($a, $b) {
+    return strtotime($b['created_at']) - strtotime($a['created_at']);
+});
+$latestAuctions = array_slice($latestAuctions, 0, 6);
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
@@ -30,14 +47,15 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <?php if (empty($latestAuctions)): ?>
             <div class="col-span-3 text-center py-12">
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No active auctions</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No active or upcoming auctions</h3>
                 <p class="text-gray-500">Check back later for new auctions.</p>
             </div>
             <?php else: ?>
             <?php foreach ($latestAuctions as $auction): ?>
-            <div class="bg-white border border-gray-100 rounded shadow-lg ring-1 ring-gray-200 relative">
+            <div
+                class="bg-white rounded-xl shadow-lg relative ring-1 ring-gray-300 hover:ring-indigo-500 transition-all duration-300">
                 <div class="p-4">
-                    <div class="mb-6">
+                    <div class="mb-6 flex justify-between items-center">
                         <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
                         <?php if (strtotime($auction['updated_at']) > strtotime($auction['created_at'])): ?>
                         <span
@@ -58,11 +76,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                             $statusClass = 'bg-blue-100 text-blue-800';
                             $statusText = 'Upcoming';
                         } elseif ($now > $endDate) {
-                            $statusClass = 'bg-gray-100 text-gray-800';
+                            $statusClass = 'bg-red-100 text-red-800';
                             $statusText = 'Ended';
                         } else {
                             $statusClass = 'bg-green-100 text-green-800';
-                            $statusText = 'Active';
+                            $statusText = 'Open';
                         }
                         ?>
                         <span

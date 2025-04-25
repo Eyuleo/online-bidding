@@ -99,11 +99,18 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <?php foreach ($auctions as $auction): ?>
-            <div class="bg-white rounded-xl shadow-lg relative ring-1 ring-gray-300">
+            <div
+                class="bg-white rounded-xl shadow-lg relative ring-1 ring-gray-300 hover:ring-indigo-500 transition-all duration-300">
                 <div class="p-4">
                     <div class="mb-4">
                         <div class="flex justify-between items-start">
                             <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
+                            <?php if (strtotime($auction['updated_at']) > strtotime($auction['created_at'])): ?>
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-2">
+                                Recently Updated
+                            </span>
+                            <?php endif; ?>
                             <?php
                             $statusColor = '';
                             switch ($auction['auction_status']) {
@@ -111,10 +118,10 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                     $statusColor = 'green';
                                     break;
                                 case 'upcoming':
-                                    $statusColor = 'yellow';
+                                    $statusColor = 'blue';
                                     break;
                                 case 'ended':
-                                    $statusColor = 'gray';
+                                    $statusColor = 'red';
                                     break;
                             }
                             ?>

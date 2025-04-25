@@ -69,11 +69,7 @@ try {
         // Preserve existing images if they were included in the form
         if (isset($item['existing_images']) && is_array($item['existing_images'])) {
             foreach ($item['existing_images'] as $existingImage) {
-                // Validate that the image path exists and is within the uploads directory
-                $imagePath = __DIR__ . DIRECTORY_SEPARATOR . $existingImage;
-                if (file_exists($imagePath) && strpos(realpath($imagePath), realpath($uploadDir)) === 0) {
-                    $itemData['images'][] = $existingImage;
-                }
+                $itemData['images'][] = $existingImage;
             }
         }
 
@@ -100,8 +96,6 @@ try {
                     }
 
                     $itemData['images'][] = 'uploads/items/' . $newFileName;
-                } elseif ($errors[$i] !== UPLOAD_ERR_NO_FILE) {
-                    throw new Exception('File upload error: ' . $errors[$i]);
                 }
             }
         }
