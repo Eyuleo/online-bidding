@@ -102,7 +102,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
                         <div id="itemsContainer">
                             <?php foreach ($auction['items'] as $index => $item): ?>
-                            <div class="item-entry mb-6 p-4 border border-gray-200 rounded-lg">
+                            <div class="item-entry mb-6 p-4 border border-gray-200 rounded-lg" data-index="<?= $index ?>">
                                 <input type="hidden" name="items[<?= $index ?>][id]" value="<?= $item['id'] ?>">
 
                                 <div class="flex justify-between mb-4">
@@ -150,15 +150,21 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                         <div class="mb-2">
                                             <div class="grid grid-cols-4 gap-2">
                                                 <?php
-                                                $stmt = $pdo->prepare('SELECT image_path FROM item_images WHERE item_id = ?');
+                                                $stmt = $pdo->prepare('SELECT id, image_path FROM item_images WHERE item_id = ?');
                                                 $stmt->execute([$item['id']]);
-                                                $images = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                                                $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 foreach ($images as $image): ?>
-                                                <div class="relative">
-                                                    <img src="<?= htmlspecialchars($image) ?>" alt="Item image"
+                                                <div class="relative group">
+                                                    <img src="<?= htmlspecialchars($image['image_path']) ?>" alt="Item image"
                                                         class="w-full h-24 object-cover rounded">
                                                     <input type="hidden" name="items[<?= $index ?>][existing_images][]"
-                                                        value="<?= htmlspecialchars($image) ?>">
+                                                        value="<?= htmlspecialchars($image['image_path']) ?>">
+                                                    <input type="hidden" name="items[<?= $index ?>][existing_image_ids][]"
+                                                        value="<?= htmlspecialchars($image['id']) ?>">
+                                                    <button type="button" onclick="removeImage(this)"
+                                                        class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
                                                 </div>
                                                 <?php endforeach; ?>
                                             </div>
@@ -166,8 +172,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                         <input type="file" name="items[<?= $index ?>][images][]" multiple
                                             accept="image/*"
                                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                                        <p class="mt-1 text-xs text-gray-500">Upload new images to add to existing ones.
-                                            Images are not removable for audit purposes.</p>
+                                        <p class="mt-1 text-xs text-gray-500">Upload new images to add to existing ones.</p>
                                     </div>
                                 </div>
                             </div>
@@ -197,7 +202,7 @@ function addItem() {
     const itemCount = container.children.length;
 
     const itemHtml = `
-        <div class="item-entry mb-6 p-4 border border-gray-200 rounded-lg">
+        <div class="item-entry mb-6 p-4 border border-gray-200 rounded-lg" data-index="${itemCount}">
             <div class="flex justify-between mb-4">
                 <h4 class="text-lg font-medium text-gray-900">Item #${itemCount + 1}</h4>
                 <button type="button" onclick="removeItem(this)"
@@ -270,6 +275,24 @@ function updateItemNumbers() {
     });
 }
 
+function removeImage(button) {
+    const imageContainer = button.closest('.relative');
+    const imagePath = imageContainer.querySelector('input[type="hidden"]').value;
+    
+    // Add to deleted images array
+    const itemIndex = imageContainer.closest('.item-entry').dataset.index;
+    if (!window.deletedImages) {
+        window.deletedImages = {};
+    }
+    if (!window.deletedImages[itemIndex]) {
+        window.deletedImages[itemIndex] = [];
+    }
+    window.deletedImages[itemIndex].push(imagePath);
+    
+    // Remove the image container
+    imageContainer.remove();
+}
+
 // Validate dates before form submission
 document.getElementById('auctionForm').addEventListener('submit', function(e) {
     const startDate = new Date(document.getElementById('start_date').value);
@@ -278,6 +301,16 @@ document.getElementById('auctionForm').addEventListener('submit', function(e) {
     if (endDate <= startDate) {
         e.preventDefault();
         alert('End date must be after start date');
+    }
+
+    if (window.deletedImages) {
+        Object.entries(window.deletedImages).forEach(([index, images]) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = `items[${index}][deleted_images][]`;
+            input.value = JSON.stringify(images);
+            this.appendChild(input);
+        });
     }
 });
 </script>

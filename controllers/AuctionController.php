@@ -345,6 +345,16 @@ private function deleteAuctionImages($auctionId)
                     $stmt = $this->pdo->prepare('DELETE FROM item_images WHERE item_id = ?');
                     $stmt->execute([$itemId]);
 
+                    // Delete the actual image files
+                    if (isset($item['deleted_images']) && !empty($item['deleted_images'])) {
+                        foreach ($item['deleted_images'] as $imagePath) {
+                            $fullPath = __DIR__ . '/../' . $imagePath;
+                            if (file_exists($fullPath)) {
+                                unlink($fullPath);
+                            }
+                        }
+                    }
+
                     // Insert all images (both existing and new)
                     if (isset($item['images']) && !empty($item['images'])) {
                         foreach ($item['images'] as $index => $image) {

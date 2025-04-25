@@ -63,13 +63,24 @@ try {
             'name' => trim($item['name']),
             'description' => trim($item['description']),
             'price' => floatval($item['price']),
-            'images' => []
+            'images' => [],
+            'deleted_images' => []
         ];
+
+        // Handle deleted images
+        if (isset($item['deleted_images']) && !empty($item['deleted_images'])) {
+            $deletedImages = json_decode($item['deleted_images'][0], true);
+            if (is_array($deletedImages)) {
+                $itemData['deleted_images'] = $deletedImages;
+            }
+        }
 
         // Preserve existing images if they were included in the form
         if (isset($item['existing_images']) && is_array($item['existing_images'])) {
             foreach ($item['existing_images'] as $existingImage) {
-                $itemData['images'][] = $existingImage;
+                if (!in_array($existingImage, $itemData['deleted_images'])) {
+                    $itemData['images'][] = $existingImage;
+                }
             }
         }
 
