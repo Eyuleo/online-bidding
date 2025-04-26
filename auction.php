@@ -425,7 +425,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                         </h3>
                         <div class="mt-2">
                             <p class="text-sm text-gray-500">
-                                Enter your bid amounts for the selected items. Each bid must be higher than the current
+                                Enter your bid amounts for the selected items. Each bid must be
+                                <?= $auction['auction_type'] === 'buy' ? 'lower than' : 'higher than' ?> the current
                                 price.
                             </p>
                         </div>

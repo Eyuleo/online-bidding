@@ -362,12 +362,41 @@ class AuthController {
             // Begin transaction
             $this->pdo->beginTransaction();
 
+            // Get all items where the user has the highest/lowest bid
+            $stmt = $this->pdo->prepare('
+                SELECT i.id, i.starting_price, a.auction_type,
+                       (SELECT MIN(b2.amount) FROM bids b2 WHERE b2.item_id = i.id AND b2.user_id != ?) as next_lowest,
+                       (SELECT MAX(b2.amount) FROM bids b2 WHERE b2.item_id = i.id AND b2.user_id != ?) as next_highest
+                FROM auction_items i
+                JOIN auctions a ON i.auction_id = a.id
+                JOIN bids b ON i.id = b.item_id
+                WHERE b.user_id = ?
+                GROUP BY i.id
+            ');
+            $stmt->execute([$userId, $userId, $userId]);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Update current prices for items where user had highest/lowest bid
+            foreach ($items as $item) {
+                $newPrice = null;
+                if ($item['auction_type'] === 'buy') {
+                    // For reverse auction (buy), use next lowest bid or starting price
+                    $newPrice = $item['next_lowest'] ?? $item['starting_price'];
+                } else {
+                    // For regular auction (sell), use next highest bid or starting price
+                    $newPrice = $item['next_highest'] ?? $item['starting_price'];
+                }
+
+                $stmt = $this->pdo->prepare('UPDATE auction_items SET current_price = ? WHERE id = ?');
+                $stmt->execute([$newPrice, $item['id']]);
+            }
+
             // Delete security answers
             $stmt = $this->pdo->prepare('DELETE FROM user_security_answers WHERE user_id = ?');
             $stmt->execute([$userId]);
 
             // Delete user's bids
-            $stmt = $this->pdo->prepare('UPDATE bids SET status = "withdrawn" WHERE user_id = ?');
+            $stmt = $this->pdo->prepare('DELETE FROM bids WHERE user_id = ?');
             $stmt->execute([$userId]);
 
             // Delete the user

@@ -76,11 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             Forgot password?
                         </a>
                     </div>
-                    <div class="text-sm">
+                    <!-- <div class="text-sm">
                         <a href="recover_account.php" class="font-medium text-indigo-600 hover:text-indigo-500">
                             Forgot email?
                         </a>
-                    </div>
+                    </div> -->
                 </div>
                 <div>
                     <button type="submit"
