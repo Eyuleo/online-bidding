@@ -102,7 +102,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
                         <div id="itemsContainer">
                             <?php foreach ($auction['items'] as $index => $item): ?>
-                            <div class="item-entry mb-6 p-4 border border-gray-200 rounded-lg" data-index="<?= $index ?>">
+                            <div class="item-entry mb-6 p-4 border border-gray-200 rounded-lg"
+                                data-index="<?= $index ?>">
                                 <input type="hidden" name="items[<?= $index ?>][id]" value="<?= $item['id'] ?>">
 
                                 <div class="flex justify-between mb-4">
@@ -155,11 +156,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                                 $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 foreach ($images as $image): ?>
                                                 <div class="relative group">
-                                                    <img src="<?= htmlspecialchars($image['image_path']) ?>" alt="Item image"
-                                                        class="w-full h-24 object-cover rounded">
+                                                    <img src="<?= htmlspecialchars($image['image_path']) ?>"
+                                                        alt="Item image" class="w-full h-24 object-cover rounded">
                                                     <input type="hidden" name="items[<?= $index ?>][existing_images][]"
                                                         value="<?= htmlspecialchars($image['image_path']) ?>">
-                                                    <input type="hidden" name="items[<?= $index ?>][existing_image_ids][]"
+                                                    <input type="hidden"
+                                                        name="items[<?= $index ?>][existing_image_ids][]"
                                                         value="<?= htmlspecialchars($image['id']) ?>">
                                                     <button type="button" onclick="removeImage(this)"
                                                         class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -172,7 +174,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                         <input type="file" name="items[<?= $index ?>][images][]" multiple
                                             accept="image/*"
                                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                                        <p class="mt-1 text-xs text-gray-500">Upload new images to add to existing ones.</p>
+                                        <p class="mt-1 text-xs text-gray-500">Upload new images to add to existing ones.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -278,7 +281,7 @@ function updateItemNumbers() {
 function removeImage(button) {
     const imageContainer = button.closest('.relative');
     const imagePath = imageContainer.querySelector('input[type="hidden"]').value;
-    
+
     // Add to deleted images array
     const itemIndex = imageContainer.closest('.item-entry').dataset.index;
     if (!window.deletedImages) {
@@ -288,7 +291,7 @@ function removeImage(button) {
         window.deletedImages[itemIndex] = [];
     }
     window.deletedImages[itemIndex].push(imagePath);
-    
+
     // Remove the image container
     imageContainer.remove();
 }

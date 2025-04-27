@@ -278,12 +278,14 @@ private function deleteAuctionImages($auctionId)
             $today = new DateTime();
             $today->setTime(0, 0);
 
+
             if ($endDate <= $startDate) {
                 return [
                     'success' => false,
                     'error' => 'End date must be after start date'
                 ];
             }
+
 
             if (empty($data['items'])) {
                 return [

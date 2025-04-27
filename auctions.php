@@ -163,10 +163,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
                         <?php if ($isAdmin): ?>
                         <div class="flex gap-2">
+                            <?php if ($auction['end_date'] > date('Y-m-d')): ?>
                             <a href="/edit-auction.php?id=<?= $auction['id'] ?>"
                                 class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">
                                 Edit
                             </a>
+                            <?php endif; ?>
                             <button onclick="showDeleteModal(<?= $auction['id'] ?>)"
                                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm cursor-pointer">
                                 Delete
