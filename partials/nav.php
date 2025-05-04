@@ -22,6 +22,9 @@ require $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'functions.php';
                         <a href="/create.php"
                             class="text-white <?= urlIs('/create.php') ? 'bg-black' : '' ?> hover:bg-gray-900 hover:text-white rounded-md px-3 py-2">Create
                             auction</a>
+                        <a href="/sell-items.php"
+                            class="text-white <?= urlIs('/sell-items.php') ? 'bg-black' : '' ?> hover:bg-gray-900 hover:text-white rounded-md px-3 py-2">Add
+                            items</a>
                         <a href="/users.php"
                             class="text-white <?= urlIs('/users.php') ? 'bg-black' : '' ?> hover:bg-gray-900 hover:text-white rounded-md px-3 py-2">Users</a>
                         <?php endif; ?>

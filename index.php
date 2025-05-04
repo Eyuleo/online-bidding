@@ -77,6 +77,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                             $statusText = 'Open';
                         }
                         ?>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <?= ucfirst($auction['auction_type']) ?> Auction
+                        </span>
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusClass ?> ml-2">
                             <?= $statusText ?>
                         </span>
