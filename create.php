@@ -218,7 +218,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show/hide sell items section based on auction type
     function updateSellItemsSection() {
-        sellItemsSection.style.display = auctionType.value === 'sell' ? 'block' : 'none';
+        if (auctionType.value === 'sell') {
+            sellItemsSection.style.display = 'block';
+        } else {
+            sellItemsSection.style.display = 'none';
+            // Clear all selected sell items
+            document.querySelectorAll('input[name="selected_items[]"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            // Remove all items from the form that were added from sell items
+            document.querySelectorAll('.item-form').forEach(form => {
+                if (form.querySelector('input[name$="[sell_item_id]"]')) {
+                    form.remove();
+                }
+            });
+        }
     }
 
     auctionType.addEventListener('change', updateSellItemsSection);

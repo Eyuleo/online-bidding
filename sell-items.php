@@ -123,10 +123,22 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                 <span class="text-lg font-bold text-indigo-600">
                                     $<?= number_format($item['price'], 2) ?>
                                 </span>
-                                <button type="button" onclick="selectItem(<?= $item['id'] ?>)"
-                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Select for Auction
-                                </button>
+                                <div class="flex gap-2">
+                                    <a href="edit-item.php?id=<?= htmlspecialchars($item['id']) ?>"
+                                        class="text-indigo-600 hover:text-indigo-900">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </a>
+                                    <button type="button" onclick="deleteSellItem(<?= $item['id'] ?>)"
+                                        class="text-red-600 hover:text-red-900">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -137,6 +149,111 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         </div>
     </div>
 </section>
+
+<!-- Edit Sell Item Modal -->
+<div id="editSellItemModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Sell Item</h3>
+                <form id="editSellItemForm" action="process-sell-item.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="item_id" id="editItemId">
+
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Item Name
+                            </label>
+                            <input type="text" name="name" id="editItemName"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                required />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Item Description
+                            </label>
+                            <textarea name="description" id="editItemDescription" rows="3"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                required></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Price
+                            </label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input type="number" name="price" id="editItemPrice" step="0.01" min="0"
+                                    class="block w-full rounded-md border-gray-300 pl-7 focus:border-indigo-500 focus:ring-indigo-500"
+                                    required />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Images
+                            </label>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <input type="file" name="images[]" multiple accept="image/*" class="hidden" />
+                                    <button type="button"
+                                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 add-images-btn">
+                                        Add Images
+                                    </button>
+                                    <span class="text-sm text-gray-500 selected-count"></span>
+                                </div>
+                                <div class="image-preview-container grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" onclick="closeEditModal()"
+                            class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Delete Item</h3>
+                <p class="text-gray-600 mb-6">Are you sure you want to delete this item? This action cannot be undone.
+                </p>
+                <form action="process-sell-item.php" method="POST">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="item_id" id="deleteItemId">
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="closeDeleteModal()"
+                            class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -210,14 +327,73 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedCountSpan.textContent = '';
         }
     }
-});
 
-function selectItem(itemId) {
-    // Store the selected item ID in localStorage
-    localStorage.setItem('selectedSellItem', itemId);
-    // Redirect to create auction page
-    window.location.href = 'create.php?type=sell';
-}
+    // Edit functionality
+    window.editSellItem = function(item) {
+        const modal = document.getElementById('editSellItemModal');
+        const form = document.getElementById('editSellItemForm');
+
+        // Set form values
+        document.getElementById('editItemId').value = item.id;
+        document.getElementById('editItemName').value = item.name;
+        document.getElementById('editItemDescription').value = item.description;
+        document.getElementById('editItemPrice').value = item.price;
+
+        // Clear and set up image previews
+        const previewContainer = form.querySelector('.image-preview-container');
+        previewContainer.innerHTML = '';
+        if (item.images) {
+            const images = item.images.split(',');
+            images.forEach(image => {
+                const previewWrapper = document.createElement('div');
+                previewWrapper.className = 'relative group';
+
+                const preview = document.createElement('div');
+                preview.className =
+                    'aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-100';
+
+                const img = document.createElement('img');
+                img.className = 'object-cover w-full h-full';
+                img.src = image;
+
+                preview.appendChild(img);
+                previewWrapper.appendChild(preview);
+                previewContainer.appendChild(previewWrapper);
+            });
+        }
+
+        // Show modal
+        modal.classList.remove('hidden');
+    };
+
+    window.closeEditModal = function() {
+        document.getElementById('editSellItemModal').classList.add('hidden');
+    };
+
+    // Delete functionality
+    window.deleteSellItem = function(itemId) {
+        const modal = document.getElementById('deleteConfirmModal');
+        document.getElementById('deleteItemId').value = itemId;
+        modal.classList.remove('hidden');
+    };
+
+    window.closeDeleteModal = function() {
+        document.getElementById('deleteConfirmModal').classList.add('hidden');
+    };
+
+    // Close modals when clicking outside
+    document.getElementById('editSellItemModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeEditModal();
+        }
+    });
+
+    document.getElementById('deleteConfirmModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+});
 </script>
 
 <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php'; ?>
