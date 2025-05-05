@@ -104,7 +104,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <div class="p-4">
                     <div class="mb-4">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
+                            <h3 class="text-xl font-bold"><?= htmlspecialchars(substr($auction['title'],0,12)) ?>...
+                            </h3>
                             <?php
                             $statusColor = '';
                             switch ($auction['auction_status']) {
@@ -118,8 +119,18 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                     $statusColor = 'red';
                                     break;
                             }
+                            $auctionTypeColor = '';
+                            switch($auction['auction_type']){
+                                case 'sell':
+                                    $auctionTypeColor = 'indigo';
+                                    break;
+                                case 'buy':
+                                    $auctionTypeColor = 'orange';
+                                    break;
+                            }
                             ?>
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <span
+                                class="px-2.5 py-0.5 rounded-full text-sm font-medium  bg-<?= $auctionTypeColor ?>-100 text-<?= $auctionTypeColor ?>-700">
                                 <?= ucfirst($auction['auction_type']) ?> Auction
                             </span>
                             <span
@@ -130,7 +141,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     </div>
 
                     <div class="mb-5 text-gray-600">
-                        <?= nl2br(htmlspecialchars($auction['description'])) ?>
+                        <?= nl2br(htmlspecialchars(substr($auction['description'], 0, 85))) ?>...
                     </div>
 
                     <div class="mb-3">

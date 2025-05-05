@@ -74,7 +74,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                 <select id="auction_type" name="auction_type"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     required>
-                                    <option value="" disabled selected>select auction type</option>
+                                    <option value="" selected>select auction type</option>
                                     <option value="sell">Regular Auction (Highest Bid Wins)</option>
                                     <option value="buy">Reverse Auction (Lowest Bid Wins)</option>
                                 </select>
@@ -134,6 +134,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                         <div id="itemsContainer">
                             <!-- Template for item form -->
                             <div class="item-form bg-gray-50 p-6 rounded-lg mb-4 hidden">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="text-lg font-medium text-gray-900 item-number">Item #1</h4>
+                                    <button type="button" class="remove-item text-red-600 hover:text-red-800 hidden">
+                                        Remove Item
+                                    </button>
+                                </div>
                                 <div class="grid grid-cols-1 gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -188,9 +194,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                         </div>
                                     </div>
                                 </div>
-                                <button type="button" class="remove-item mt-4 text-red-600 hover:text-red-800 hidden">
-                                    Remove Item
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -216,6 +219,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('auctionForm');
     let itemCount = 0;
 
+    // Function to update item numbers
+    function updateItemNumbers() {
+        const itemForms = document.querySelectorAll('.item-form:not(.hidden)');
+        itemForms.forEach((form, index) => {
+            const numberElement = form.querySelector('.item-number');
+            if (numberElement) {
+                numberElement.textContent = `Item #${index + 1}`;
+            }
+        });
+    }
+
     // Show/hide sell items section based on auction type
     function updateSellItemsSection() {
         if (auctionType.value === 'sell') {
@@ -233,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
+        updateItemNumbers();
     }
 
     auctionType.addEventListener('change', updateSellItemsSection);
@@ -275,6 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     `input[name^="items"][name$="[sell_item_id]"][value="${itemId}"]`);
                 if (itemToRemove) {
                     itemToRemove.closest('.item-form').remove();
+                    updateItemNumbers();
                 }
             }
         });
@@ -325,6 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
         removeButton.classList.remove('hidden');
         removeButton.addEventListener('click', function() {
             template.remove();
+            updateItemNumbers();
             // Uncheck the checkbox in the sell items section
             const checkbox = document.querySelector(
                 `input[name="selected_items[]"][value="${itemId}"]`);
@@ -335,6 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         itemsContainer.appendChild(template);
         itemCount++;
+        updateItemNumbers();
     }
 
     addItemButton.addEventListener('click', function() {
@@ -365,6 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
         removeButton.classList.remove('hidden');
         removeButton.addEventListener('click', function() {
             template.remove();
+            updateItemNumbers();
         });
 
         // Initialize image handling for new item
@@ -372,6 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         itemsContainer.appendChild(template);
         itemCount++;
+        updateItemNumbers();
     });
 
     function initializeImageHandling(itemForm) {

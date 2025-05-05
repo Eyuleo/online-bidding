@@ -85,6 +85,25 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                         required />
                                 </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="auction_type">
+                                        Auction Type
+                                    </label>
+                                    <select id="auction_type" name="auction_type"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        required>
+                                        <option value="sell"
+                                            <?= $auction['auction_type'] === 'sell' ? 'selected' : '' ?>>Regular Auction
+                                            (Highest Bid Wins)</option>
+                                        <option value="buy" <?= $auction['auction_type'] === 'buy' ? 'selected' : '' ?>>
+                                            Reverse Auction (Lowest Bid Wins)</option>
+                                    </select>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Regular auction is for selling items (highest bid wins).
+                                        Reverse auction is for buying items (lowest bid wins).
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -109,8 +128,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                                 <div class="flex justify-between mb-4">
                                     <h4 class="text-lg font-medium text-gray-900">Item #<?= $index + 1 ?></h4>
                                     <button type="button" onclick="removeItem(this)"
-                                        class="text-red-600 hover:text-red-800">
-                                        <i class="fas fa-trash"></i>
+                                        class="bg-red-600 text-white hover:bg-red-800 px-3 py-2 rounded">
+                                        Delete <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
 
@@ -209,8 +228,8 @@ function addItem() {
             <div class="flex justify-between mb-4">
                 <h4 class="text-lg font-medium text-gray-900">Item #${itemCount + 1}</h4>
                 <button type="button" onclick="removeItem(this)"
-                    class="text-red-600 hover:text-red-800">
-                    <i class="fas fa-trash"></i>
+                    class="bg-red-600 text-white hover:bg-red-800 px-3 py-2 rounded">
+                    Delete <i class="fas fa-trash"></i>
                 </button>
             </div>
 

@@ -56,7 +56,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 class="bg-white rounded-xl shadow-lg relative ring-1 ring-gray-300 hover:ring-indigo-500 transition-all duration-300">
                 <div class="p-4">
                     <div class="mb-6 flex justify-between items-center">
-                        <h3 class="text-xl font-bold"><?= htmlspecialchars($auction['title']) ?></h3>
+                        <h3 class="text-xl font-bold"><?= htmlspecialchars(substr($auction['title'],0,12)) ?>...</h3>
 
                         <?php
                         // Determine auction status
@@ -76,8 +76,19 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                             $statusClass = 'bg-green-100 text-green-800';
                             $statusText = 'Open';
                         }
+
+                        $auctionTypeColor = '';
+                            switch($auction['auction_type']){
+                                case 'sell':
+                                    $auctionTypeColor = 'indigo';
+                                    break;
+                                case 'buy':
+                                    $auctionTypeColor = 'orange';
+                                    break;
+                            }
                         ?>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <span
+                            class="px-2.5 py-0.5 rounded-full text-sm font-medium bg-<?= $auctionTypeColor ?>-100 text-<?= $auctionTypeColor ?>-700">
                             <?= ucfirst($auction['auction_type']) ?> Auction
                         </span>
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusClass ?> ml-2">
@@ -86,7 +97,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     </div>
 
                     <div class="mb-5">
-                        <?= htmlspecialchars(substr($auction['description'], 0, 100)) ?>...
+                        <?= htmlspecialchars(substr($auction['description'], 0, 85)) ?>...
                     </div>
 
                     <div class="mb-3">
