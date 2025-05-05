@@ -122,7 +122,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                             $auctionTypeColor = '';
                             switch($auction['auction_type']){
                                 case 'sell':
-                                    $auctionTypeColor = 'indigo';
+                                    $auctionTypeColor = 'fuchsia';
                                     break;
                                 case 'buy':
                                     $auctionTypeColor = 'orange';
